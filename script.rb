@@ -25,16 +25,9 @@ module YamlHangman
     @user_won = file['user_won']
   end
 
-  def ask_to_save_game
-    @answer_to_save = ''
-    while @answer_to_save != 'y' && @answer_to_save != 'n'
-      puts 'Save game? y/n'
-      @answer_to_save = gets.strip.downcase
-    end
-    save_game if @answer_to_save == 'y'
-  end
-
   def save_game
+    puts 'Game saved.'
+    @request_to_save = true
     yaml = YAML.dump(
       'computer' => @computer,
       'place_for_word' => @place_for_word,
@@ -60,7 +53,7 @@ class Hangman
     print 'Enter your name to play: '
     @name = gets.strip
     puts "Hello #{@name}! Welcome to the hangman game. Try to guess the letter or the full word. You have 10 guesses."
-    puts "To exit game, type 'exit'."
+    puts "To exit game, type 'exit'. To save game, type 'save'."
     @computer = computer_choice
     puts @computer
     @place_for_word = '_' * @computer.length
@@ -113,7 +106,7 @@ class Hangman
     if guess.length == 1
       case @computer.include?(guess)
       when true
-        puts 'Good guess!'
+        puts @place_for_word.include?(guess) ? 'Letter was already guessed.' : 'Good guess!'
         swap_dashes_for_letters(guess)
         user_won if @place_for_word == @computer
       else
@@ -130,13 +123,17 @@ class Hangman
 
   def guess_rounds
     while @remaining_guesses.positive? && @user_won == false
-      ask_to_save_game unless @remaining_guesses == 10
       display_word(@place_for_word)
       puts "Remaining guesses: #{@remaining_guesses}"
       puts "Incorrect letters: #{@incorrect_letters}" unless @incorrect_letters.empty?
       @remaining_guesses -= 1
       print 'Your guess: '
       user_guess = gets.strip.downcase
+      if user_guess == 'save'
+        save_game
+        print 'Your guess: '
+        user_guess = gets.strip.downcase
+      end
       break if user_guess == 'exit'
 
       eval_guess(user_guess)
@@ -145,7 +142,7 @@ class Hangman
   end
 
   def display_end_game_message
-    return if @remaining_guesses.positive? && @user_won == false && (@answer_to_save == 'y' || @answer_to_open == 'y')
+    return if @remaining_guesses.positive? && @user_won == false && (@request_to_save == true || @answer_to_open == 'y')
 
     display_word(@place_for_word) unless @place_for_word == @computer
     puts "Word to guess was: #{@computer}\nGame over"
