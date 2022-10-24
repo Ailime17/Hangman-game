@@ -2,11 +2,11 @@ require 'yaml'
 
 module YamlHangman
   def ask_to_open_saved_game
-    while @answer2 != 'y' && @answer2 != 'n'
+    while @answer_to_open != 'y' && @answer_to_open != 'n'
       puts 'Open saved game? y/n'
-      @answer2 = gets.strip.downcase
+      @answer_to_open = gets.strip.downcase
     end
-    return unless @answer2 == 'y'
+    return unless @answer_to_open == 'y'
 
     open_saved_game
     guess_rounds
@@ -15,7 +15,7 @@ module YamlHangman
   def open_saved_game
     game_file = File.open('saved_game.yaml', 'r')
     yaml = game_file.read
-    file = YAML.safe_load(yaml)#, permitted_classes: [Hangman])
+    file = YAML.safe_load(yaml)
     # file = YAML.safe_load(File.read('saved_game.yaml'))
     @computer = file['computer']
     @place_for_word = file['place_for_word']
@@ -26,12 +26,12 @@ module YamlHangman
   end
 
   def ask_to_save_game
-    @answer1 = ''
-    while @answer1 != 'y' && @answer1 != 'n'
+    @answer_to_save = ''
+    while @answer_to_save != 'y' && @answer_to_save != 'n'
       puts 'Save game? y/n'
-      @answer1 = gets.strip.downcase
+      @answer_to_save = gets.strip.downcase
     end
-    save_game if @answer1 == 'y'
+    save_game if @answer_to_save == 'y'
   end
 
   def save_game
@@ -53,9 +53,9 @@ class Hangman
   include YamlHangman
 
   def initialize
-    @answer2 = ''
+    @answer_to_open = ''
     ask_to_open_saved_game if File.exist?('saved_game.yaml')
-    return if @answer2 == 'y'
+    return if @answer_to_open == 'y'
 
     print 'Enter your name to play: '
     @name = gets.strip
@@ -145,7 +145,7 @@ class Hangman
   end
 
   def display_end_game_message
-    return if @remaining_guesses.positive? && @user_won == false && (@answer1 == 'y' || @answer2 == 'y')
+    return if @remaining_guesses.positive? && @user_won == false && (@answer_to_save == 'y' || @answer_to_open == 'y')
 
     display_word(@place_for_word) unless @place_for_word == @computer
     puts "Word to guess was: #{@computer}\nGame over"
