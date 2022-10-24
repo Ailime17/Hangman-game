@@ -55,7 +55,6 @@ class Hangman
     puts "Hello #{@name}! Welcome to the hangman game. Try to guess the letter or the full word. You have 10 guesses."
     puts "To exit game, type 'exit'. To save game, type 'save'."
     @computer = computer_choice
-    puts @computer
     @place_for_word = '_' * @computer.length
     @remaining_guesses = 10
     @user_won = false
